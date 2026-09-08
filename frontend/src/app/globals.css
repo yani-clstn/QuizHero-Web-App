@@ -1,0 +1,215 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F7F7F2;
+  --foreground: #1C1C1C;
+  --primary-pine: #0A3B2C;
+  --primary-pine-dark: #06281E;
+  --accent-mint: #A3E6C2;
+  --accent-mint-hover: #b5f1d0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-cvsu-green: #0E7444;
+  --color-cvsu-dark: #093C29;
+  --color-cvsu-gold: #F3B229;
+  --color-cvsu-light: #EBF7EE;
+  --color-cvsu-vibrant: #02E49B;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #F7F7F2;
+  color: #1C1C1C;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Background Gradients */
+.login-mesh-bg {
+  background-color: #0A3B2C;
+  background-image: 
+    radial-gradient(at 15% 15%, rgba(163, 230, 194, 0.15) 0px, transparent 55%),
+    radial-gradient(at 85% 20%, rgba(6, 40, 30, 0.9) 0px, transparent 50%),
+    radial-gradient(at 50% 85%, rgba(4, 31, 23, 0.95) 0px, transparent 70%);
+  background-attachment: fixed;
+}
+
+.dashboard-app-bg {
+  background-color: #F7F7F2;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(10, 59, 44, 0.04) 0%, transparent 60%),
+    radial-gradient(#e5e5dc 1px, transparent 1px);
+  background-size: 100% 100%, 28px 28px;
+}
+
+/* Layered Diffused Premium Shadows */
+.shadow-premium-card {
+  box-shadow: 
+    0 0 0 1px rgba(28, 28, 28, 0.04),
+    0 1px 2px 0 rgba(28, 28, 28, 0.03),
+    0 4px 12px 0 rgba(28, 28, 28, 0.02),
+    0 20px 40px -8px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-premium-hover {
+  box-shadow: 
+    0 0 0 1px rgba(10, 59, 44, 0.3),
+    0 2px 6px 0 rgba(28, 28, 28, 0.04),
+    0 14px 32px -4px rgba(10, 59, 44, 0.12),
+    0 28px 56px -6px rgba(10, 59, 44, 0.08);
+}
+
+.shadow-premium-modal {
+  box-shadow: 
+    0 0 0 1px rgba(255, 255, 255, 0.2),
+    0 4px 12px 0 rgba(0, 0, 0, 0.15),
+    0 20px 48px -4px rgba(0, 0, 0, 0.35),
+    0 40px 80px -12px rgba(0, 0, 0, 0.5);
+}
+
+.shadow-button-glow {
+  box-shadow: 
+    0 1px 2px 0 rgba(10, 59, 44, 0.25),
+    0 4px 14px 0 rgba(10, 59, 44, 0.3),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
+}
+
+.shadow-button-glow-hover {
+  box-shadow: 
+    0 2px 4px 0 rgba(10, 59, 44, 0.3),
+    0 8px 24px 0 rgba(10, 59, 44, 0.4),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Crisp Inner Highlight */
+.inner-highlight {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+}
+
+.inner-highlight-dark {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Spring-like transitions */
+.spring-transition {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Micro-interaction tactile button press */
+.btn-tactile {
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+.btn-tactile:active {
+  transform: scale(0.975);
+}
+
+/* === Smooth Fade Animations === */
+@keyframes smoothFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalBackdropEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(163, 230, 194, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(163, 230, 194, 0);
+  }
+}
+
+.view-transition {
+  animation: smoothFade 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.fade-in {
+  animation: smoothFade 0.25s ease-out forwards;
+}
+
+.fade-effect {
+  animation: smoothFade 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.question-transition {
+  animation: smoothFade 0.22s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.modal-backdrop-anim {
+  animation: modalBackdropEnter 0.2s ease-out forwards;
+}
+
+.modal-box-anim {
+  animation: smoothFade 0.25s ease-out forwards;
+}
+
+.pulse-ring {
+  animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
+/* Interactive Hover Glow Card Utility */
+.interactive-card {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+.interactive-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Custom range slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  background: #e5e5dc;
+  border-radius: 9999px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 22px;
+  width: 22px;
+  border-radius: 50%;
+  background: #0A3B2C;
+  border: 3px solid #A3E6C2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  margin-top: -8px;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #06281E;
+  box-shadow: 0 4px 12px rgba(10, 59, 44, 0.4), 0 0 0 6px rgba(163, 230, 194, 0.3);
+}
+
+input[type="range"]:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 6px rgba(163, 230, 194, 0.35);
+}

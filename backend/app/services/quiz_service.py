@@ -1,0 +1,99 @@
+import uuid
+from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.schemas.quiz import QuizRequest
+from app.models import Quiz, Question, Option
+from app.services.ai_generator import generate_quiz
+
+ALLOWED_MIME_TYPES = {
+    "application/pdf",
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+}
+MAX_FILE_BYTES = 20 * 1024 * 1024
+MAX_TEXT_CHARS = 100_000
+
+def validate_source_payload(request: QuizRequest) -> None:
+    if request.source_type == "file" or request.file_base64:
+        if not request.file_base64:
+            raise HTTPException(status_code=400, detail="Missing file data for file-based assessment.")
+        
+        estimated_bytes = (len(request.file_base64) * 3) / 4
+        if estimated_bytes > MAX_FILE_BYTES:
+            raise HTTPException(
+                status_code=413,
+                detail=f"File exceeds maximum allowed size ({MAX_FILE_BYTES // (1024 * 1024)}MB). Please upload a smaller file.",
+            )
+
+        if request.file_mime_type and request.file_mime_type.lower() not in ALLOWED_MIME_TYPES:
+            raise HTTPException(
+                status_code=415,
+                detail=f"Unsupported file format '{request.file_mime_type}'. Supported: PDF, JPEG, PNG, WebP.",
+            )
+
+    if request.source_type == "text" and request.content_text:
+        if len(request.content_text) > MAX_TEXT_CHARS:
+            raise HTTPException(
+                status_code=413,
+                detail=f"Notes text exceeds maximum limit of {MAX_TEXT_CHARS} characters.",
+            )
+
+async def publish_quiz_workflow(request: QuizRequest, user_email: str, db: AsyncSession) -> Quiz:
+    topic_title = (request.topic or "").strip() or (request.file_name if request.file_name else "Course Assessment")
+    count = max(1, min(50, request.question_count))
+    raw_sections = getattr(request, "sections", None)
+    sections_dict = [s.model_dump() for s in raw_sections] if raw_sections else None
+
+    questions_data = generate_quiz(
+        topic=topic_title,
+        question_count=count,
+        quiz_type=request.quiz_type,
+        source_type=request.source_type or "topic",
+        content_text=request.content_text,
+        file_base64=request.file_base64,
+        file_mime_type=request.file_mime_type,
+        file_name=request.file_name,
+        sections=sections_dict,
+    )
+    
+    quiz_id = str(uuid.uuid4())[:8]
+    
+    # Create the questions and options ORM objects
+    question_objects = []
+    for idx, q_data in enumerate(questions_data):
+        new_q = Question(
+            quiz_id=quiz_id,
+            question_text=q_data["question"],
+            quiz_type=q_data.get("quiz_type", request.quiz_type),
+            section_name=q_data.get("section_name"),
+            answer=q_data["answer"],
+            order_index=idx
+        )
+        # Create options
+        options_list = []
+        for opt_idx, opt_text in enumerate(q_data.get("options", [])):
+            new_opt = Option(
+                option_text=opt_text,
+                order_index=opt_idx
+            )
+            options_list.append(new_opt)
+            
+        new_q.options = options_list
+        question_objects.append(new_q)
+
+    new_quiz = Quiz(
+        id=quiz_id,
+        topic=topic_title,
+        quiz_type=request.quiz_type,
+        question_count=len(questions_data),
+        created_by_email=user_email,
+        questions=question_objects 
+    )
+    db.add(new_quiz)
+    
+    await db.commit()
+    await db.refresh(new_quiz)
+    
+    return new_quiz
