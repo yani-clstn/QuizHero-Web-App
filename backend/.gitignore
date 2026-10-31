@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.venv/
+.venv copy/
+*.egg
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+*.db.bak
+
+# Environment - NEVER commit these
+.env
+.env.local
+.env.*
+!.env.example
+
+# UV
+.uv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
