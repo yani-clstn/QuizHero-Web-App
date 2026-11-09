@@ -80,6 +80,19 @@ export async function authenticateCvSUGoogle(
 
 export const verifyGoogleToken = authenticateCvSUGoogle;
 
+export async function authenticateLocalTestStudent(): Promise<CvSUUser> {
+  const response = await fetch(`${API_URL}/auth/dev/student`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Local student test authentication is disabled.", response.status);
+  }
+
+  return response.json();
+}
+
 export async function fetchCurrentUser(): Promise<CvSUUser> {
   return fetchWithAuth(`${API_URL}/api/auth/me`);
 }
@@ -216,16 +229,34 @@ export async function sendChatMessage(
   messages: { role: string; content: string }[],
   userName?: string,
   userRole?: string,
-  contextTopic?: string
+  contextTopic?: string,
+  signal?: AbortSignal
 ): Promise<string> {
-  const data = await fetchWithAuth(`${API_URL}/chat`, {
-    method: "POST",
-    body: JSON.stringify({
-      messages,
-      user_name: userName || "Student",
-      user_role: userRole || "student",
-      context_topic: contextTopic,
-    }),
-  });
-  return data.reply;
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), 35_000);
+  const abortRequest = () => controller.abort();
+  signal?.addEventListener("abort", abortRequest, { once: true });
+
+  try {
+    const data = await fetchWithAuth(`${API_URL}/chat`, {
+      method: "POST",
+      body: JSON.stringify({
+        messages,
+        user_name: userName || "Student",
+        user_role: userRole || "student",
+        context_topic: contextTopic,
+      }),
+      signal: controller.signal,
+    });
+
+    return data.reply;
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("The AI service took too long to respond. Please try again.");
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeoutId);
+    signal?.removeEventListener("abort", abortRequest);
+  }
 }
